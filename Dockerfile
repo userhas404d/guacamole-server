@@ -22,9 +22,9 @@
 #
 
 
-# Use Debian as base for the build
-ARG DEBIAN_VERSION=stable
-FROM debian:${DEBIAN_VERSION} AS builder
+# Use Ubuntu as base for the build
+ARG UBUNTU_VERSION=xenial
+FROM ubuntu:${UBUNTU_VERSION} AS builder
 
 # Base directory for installed build artifacts.
 # Due to limitations of the Docker image build process, this value is
@@ -40,7 +40,7 @@ ARG BUILD_DEPENDENCIES="              \
         gcc                           \
         libcairo2-dev                 \
         libfreerdp-dev                \
-        libjpeg62-turbo-dev           \
+        libjpeg-turbo8-dev            \
         libossp-uuid-dev              \
         libpango1.0-dev               \
         libpulse-dev                  \
@@ -49,9 +49,11 @@ ARG BUILD_DEPENDENCIES="              \
         libtelnet-dev                 \
         libtool                       \
         libvncserver-dev              \
-        libwebsockets-dev             \
         libwebp-dev                   \
         make"
+
+# Build time environment
+ENV LC_ALL=en_US.UTF-8
 
 # Bring build environment up to date and install build dependencies
 RUN apt-get update                         && \
@@ -74,8 +76,8 @@ RUN ${PREFIX_DIR}/bin/list-dependencies.sh    \
         ${PREFIX_DIR}/lib/freerdp/guac*.so    \
         > ${PREFIX_DIR}/DEPENDENCIES
 
-# Use same Debian as the base for the runtime image
-FROM debian:${DEBIAN_VERSION}
+# Use same Ubuntu as the base for the runtime image
+FROM ubuntu:${UBUNTU_VERSION}
 
 # Base directory for installed build artifacts.
 # Due to limitations of the Docker image build process, this value is
@@ -85,8 +87,7 @@ FROM debian:${DEBIAN_VERSION}
 ARG PREFIX_DIR=/usr/local/guacamole
 
 # Runtime environment
-ENV LC_ALL=C.UTF-8
-ENV LD_LIBRARY_PATH=${PREFIX_DIR}/lib
+ENV LC_ALL=en_US.UTF-8
 ENV GUACD_LOG_LEVEL=info
 
 ARG RUNTIME_DEPENDENCIES="            \
